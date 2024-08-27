@@ -4,6 +4,7 @@
 # Environment
 appsettings.Development.json
 appsettings.Productions.json
+appsettings.json
 
 # Migrations Data
 Migrations/*
