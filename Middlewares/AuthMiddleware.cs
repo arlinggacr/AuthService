@@ -84,6 +84,9 @@ namespace AuthService.Middlewares
                 {
                     throw new SecurityTokenException("User lacks required roles.");
                 }
+
+                // Store the access token in HttpContext.Items
+                context.Items["AccessToken"] = accessToken;
             }
             catch (SecurityTokenExpiredException)
             {

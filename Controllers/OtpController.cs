@@ -84,11 +84,16 @@ namespace AuthService.Controllers
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
 
+                var accessToken = HttpContext.Items["AccessToken"] as string;
+                Console.WriteLine(accessToken);
+
                 var keycloakUserCreated = await _keycloakService.CreateUserAsync(
+                    accessToken,
                     registerDto.Username,
                     registerDto.Email,
                     registerDto.Password
                 );
+
                 if (!keycloakUserCreated)
                 {
                     _context.User.Remove(user);
@@ -96,14 +101,11 @@ namespace AuthService.Controllers
                     return BadRequest("Failed to create user in Keycloak.");
                 }
 
-                // var otp = _otpService.GenerateOtp(registerDto.Email);
-                // await SendOtpAsync(registerDto.Email, otp);
-
                 return Ok("Registration successful.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during registration: {ex.Message}");
+                Console.WriteLine($"Error during registration: {ex}");
                 return StatusCode(
                     (int)HttpStatusCode.InternalServerError,
                     "An error occurred during registration."

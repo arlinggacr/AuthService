@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AuthService.Models;
+using Keycloak.Net.Models.Clients;
 using Newtonsoft.Json;
 
 namespace AuthService.Services
@@ -44,6 +45,7 @@ namespace AuthService.Services
                                 "client_secret",
                                 "ZVJdgKpCqHrsFnX0Oia5oaYKjdykxyLc"
                             ),
+                            new KeyValuePair<string, string>("scope", "web-origins"),
                             new KeyValuePair<string, string>("username", _adminUsername),
                             new KeyValuePair<string, string>("password", _adminPassword),
                         }
@@ -88,6 +90,7 @@ namespace AuthService.Services
                                 "client_secret",
                                 "ZVJdgKpCqHrsFnX0Oia5oaYKjdykxyLc"
                             ),
+                            new KeyValuePair<string, string>("scope", "web-origins"),
                             new KeyValuePair<string, string>("username", username),
                             new KeyValuePair<string, string>("password", password),
                         }
@@ -108,17 +111,16 @@ namespace AuthService.Services
             }
         }
 
-        public async Task<bool> CreateUserAsync(string username, string email, string password)
+        public async Task<bool> CreateUserAsync(
+            string? accessToken,
+            string username,
+            string email,
+            string password
+        )
         {
             try
             {
-                var accessToken = await GetAccessTokenAsync();
-                if (accessToken == null)
-                {
-                    Console.WriteLine("Access token is null. Unable to create user.");
-                    return false;
-                }
-
+                // Set the Authorization header with the provided access token
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
                     "Bearer",
                     accessToken
@@ -145,11 +147,21 @@ namespace AuthService.Services
                     keycloakUser
                 );
 
+                Console.WriteLine(response);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(
+                        $"Failed to create user in Keycloak. StatusCode: {response.StatusCode}"
+                    );
+                    return false;
+                }
+
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error while creating user: {ex.Message}");
+                Console.WriteLine($"Unexpected error while creating user: {ex}");
                 return false;
             }
         }
@@ -185,16 +197,16 @@ namespace AuthService.Services
                     return new List<UserDto>();
                 }
 
-                // try
-                // {
-                var users = JsonConvert.DeserializeObject<List<UserDto>>(contentString);
-                return users ?? new List<UserDto>();
-                // }
-                // catch (JsonSerializationException)
-                // {
-                //     Console.WriteLine("Failed to deserialize JSON response.");
-                //     return new List<UserDto>();
-                // }
+                try
+                {
+                    var users = JsonConvert.DeserializeObject<List<UserDto>>(contentString);
+                    return users ?? new List<UserDto>();
+                }
+                catch (JsonSerializationException)
+                {
+                    Console.WriteLine("Failed to deserialize JSON response.");
+                    return new List<UserDto>();
+                }
             }
             catch (Exception ex)
             {
