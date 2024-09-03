@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+      {
+          "label": "start_project",
+          "type": "shell",
+          "command": "./start_project.sh",
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "presentation": {
+              "reveal": "always"
+          },
+          "problemMatcher": []
+      }
+  ]
+}

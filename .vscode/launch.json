@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": ".NET Core Launch (web)",
+          "type": "coreclr",
+          "request": "launch",
+          "preLaunchTask": "start_project",
+          "program": "${workspaceFolder}/obj/Debug/net8.0/AuthService.dll",
+          "args": [],
+          "cwd": "${workspaceFolder}",
+          "stopAtEntry": false,
+          "serverReadyAction": {
+              "action": "openExternally",
+              "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+          },
+          "env": {
+              "ASPNETCORE_ENVIRONMENT": "Development"
+          },
+          "sourceFileMap": {
+              "/Views": "${workspaceFolder}/Views"
+          }
+      }
+  ]
+}
